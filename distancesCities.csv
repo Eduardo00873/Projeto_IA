@@ -1,0 +1,19 @@
+Leiria,Aveiro,Braga,Bragança,Beja,Castelo Branco,Coimbra,Évora,Faro,Guarda,Leiria,Lisboa,Portalegre,Porto,Santarém,Setúbal,Viana do Castelo,Vila Real,Viseu
+Aveiro,0,,,,,68,,,,115,,,68,,,,,95
+Braga,,0,,,,,,,,,,,53,,,48,106,
+Bragança,,,0,,,,,,202,,,,,,,,137,
+Beja,,,,0,,,78,152,,,,,,,142,,,
+Castelo Branco,,,,,0,159,203,,106,,,80,,,,,,
+Coimbra,68,,,,159,0,,,,67,,,,,,,,96
+Évora,,,,78,203,,0,,,,150,131,,117,103,,,
+Faro,,,,152,,,,0,,,299,,,,249,,,
+Guarda,,,202,,106,,,,0,,,,,,,,157,85
+Leiria,115,,,,,67,,,,0,129,,,70,,,,
+Lisboa,,,,,,,150,299,,129,0,,,78,50,,,
+Portalegre,,,,,80,,131,,,,,0,,,,,,
+Porto,68,53,,,,,,,,,,,0,,,71,116,133
+Santarém,,,,,,,117,,,70,78,,,0,,,,
+Setúbal,,,,142,,,103,249,,,50,,,,0,,,
+Viana do Castelo,,48,,,,,,,,,,,71,,,0,,
+Vila Real,,106,137,,,,,,157,,,,116,,,,0,110
+Viseu,95,,,,,96,,,85,,,,133,,,,110,0
