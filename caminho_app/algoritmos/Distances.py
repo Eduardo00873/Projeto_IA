@@ -57,4 +57,3 @@ coordinates = get_city_coordinates(cities, key)
 distances = calculate_distances(coordinates)
 print(distances)
 
-

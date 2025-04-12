@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Algoritmo de Caminhos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1e40af',
+            accent: '#10b981',
+            background: '#f9fafb'
+          },
+          animation: {
+            fadeIn: 'fadeIn 0.6s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: 0, transform: 'translateY(20px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+          },
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-background min-h-screen font-sans flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-primary to-blue-700 text-white shadow-lg py-6 px-8">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-3xl font-extrabold tracking-tight">Algoritmo de Caminhos</h1>
+      <p class="text-sm text-blue-100 mt-1">Escolha o algoritmo e depois os pontos</p>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="flex-grow flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-3xl p-1 rounded-3xl bg-gradient-to-r from-emerald-400/30 to-blue-400/30 shadow-2xl">
+      <div class="bg-white/80 backdrop-blur-lg rounded-[inherit] p-8 shadow-xl animate-fadeIn transition duration-300">
+
+        <!-- Formulário -->
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+          {% csrf_token %}
+
+          <style>
+            input[type="text"],
+            select,
+            textarea {
+              @apply w-full px-4 py-2 border-2 border-accent rounded-xl shadow-md bg-white text-gray-800 placeholder-gray-400 transition duration-200;
+            }
+            label {
+              @apply block text-sm font-medium text-gray-600 mb-1;
+            }
+          </style>
+
+          <!-- Campo de Algoritmo -->
+          <div id="algoritmo-section">
+            <label for="id_algoritmo">Algoritmo</label>
+            {{ form.algoritmo }}
+          </div>
+
+          <!-- Campos de origem/destino -->
+          <div id="extra-fields" class="space-y-4 hidden animate-fadeIn">
+            <div>
+              <label for="id_origem">Ponto de Início</label>
+              {{ form.origem }}
+            </div>
+            <div>
+              <label for="id_destino">Ponto de Destino</label>
+              {{ form.destino }}
+            </div>
+          </div>
+
+          <div class="flex justify-center pt-2">
+            <button type="submit" class="bg-accent hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-xl transform hover:scale-105">
+              🚀 Executar
+            </button>
+          </div>
+        </form>
+
+        <!-- Resultado -->
+        {% if resultado %}
+          <div id="resultado-bloco" class="mt-10 border-t pt-6">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 shadow-inner">
+              <h2 class="text-2xl font-bold text-emerald-600 mb-2">✅ Resultado</h2>
+              <p class="text-gray-800 leading-relaxed">{{ resultado }}</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-sm text-gray-500 py-4">
+    Desenvolvido com ❤️ por você
+  </footer>
+
+  <!-- Script -->
+  <script>
+    const algoritmoSelect = document.getElementById('id_algoritmo');
+    const extraFields = document.getElementById('extra-fields');
+
+    algoritmoSelect.addEventListener('change', () => {
+      const origemInput = document.getElementById('id_origem');
+      const destinoInput = document.getElementById('id_destino');
+
+      if (algoritmoSelect.value) {
+        extraFields.classList.remove('hidden');
+        // Limpa os campos ao trocar de algoritmo
+        if (origemInput) origemInput.value = '';
+        if (destinoInput) destinoInput.value = '';
+      } else {
+        extraFields.classList.add('hidden');
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const resultadoDiv = document.getElementById('resultado-bloco');
+      if (resultadoDiv && performance.getEntriesByType("navigation")[0].type === "reload") {
+        resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  </script>
+</body>
+</html>

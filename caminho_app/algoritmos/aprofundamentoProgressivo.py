@@ -45,7 +45,7 @@ def profundidade_limitada(grafo, atual, destino, limite, caminho, visitados):
                 return resultado
     return None
 
-def busca_aprofundamento_agressivo(grafo, origem, destino, limite_max=50):
+def busca_aprofundamento_progressivo(grafo, origem, destino, limite_max=50):
     for limite in range(1, limite_max + 1):
         resultado = profundidade_limitada(grafo, origem, destino, limite, [origem], set())
         if resultado:
@@ -65,7 +65,7 @@ def main():
     limite_max = input("Profundidade máxima (pressiona Enter para usar 50): ").strip()
     limite_max = int(limite_max) if limite_max.isdigit() else 50
 
-    caminho = busca_aprofundamento_agressivo(grafo, origem, destino, limite_max)
+    caminho = busca_aprofundamento_progressivo(grafo, origem, destino, limite_max)
 
     if caminho:
         print(f"\nCaminho encontrado (Aprofundamento Agressivo):")
