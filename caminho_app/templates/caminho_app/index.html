@@ -44,6 +44,7 @@
     <div class="w-full max-w-3xl p-1 rounded-3xl bg-gradient-to-r from-emerald-400/30 to-blue-400/30 shadow-2xl">
       <div class="bg-white/80 backdrop-blur-lg rounded-[inherit] p-8 shadow-xl animate-fadeIn transition duration-300">
 
+        {% if not resultado %}
         <!-- Formulário -->
         <form method="post" enctype="multipart/form-data" class="space-y-6">
           {% csrf_token %}
@@ -69,64 +70,110 @@
           <div id="extra-fields" class="space-y-4 hidden animate-fadeIn">
             <div>
               <label for="id_origem">Ponto de Início</label>
-              {{ form.origem }}
+              <select id="id_origem" name="origem" required>
+                <option value="" disabled selected hidden>Selecione</option>
+                <option value="Aveiro">Aveiro</option>
+                <option value="Braga">Braga</option>
+                <option value="Bragança">Bragança</option>
+                <option value="Beja">Beja</option>
+                <option value="Castelo Branco">Castelo Branco</option>
+                <option value="Coimbra">Coimbra</option>
+                <option value="Évora">Évora</option>
+                <option value="Faro">Faro</option>
+                <option value="Guarda">Guarda</option>
+                <option value="Leiria">Leiria</option>
+                <option value="Lisboa">Lisboa</option>
+                <option value="Porto">Porto</option>
+                <option value="Vila Real">Vila Real</option>
+              </select>
             </div>
-            <div>
+            <div id="destino-div">
               <label for="id_destino">Ponto de Destino</label>
-              {{ form.destino }}
+              <select id="id_destino" name="destino">
+                <option value="" disabled selected hidden>Selecione</option>
+                <option value="Aveiro">Aveiro</option>
+                <option value="Braga">Braga</option>
+                <option value="Bragança">Bragança</option>
+                <option value="Beja">Beja</option>
+                <option value="Castelo Branco">Castelo Branco</option>
+                <option value="Coimbra">Coimbra</option>
+                <option value="Évora">Évora</option>
+                <option value="Faro">Faro</option>
+                <option value="Guarda">Guarda</option>
+                <option value="Leiria">Leiria</option>
+                <option value="Lisboa">Lisboa</option>
+                <option value="Porto">Porto</option>
+                <option value="Vila Real">Vila Real</option>
+              </select>
             </div>
           </div>
 
           <div class="flex justify-center pt-2">
             <button type="submit" class="bg-accent hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-xl transform hover:scale-105">
-              🚀 Executar
+              Executar
             </button>
           </div>
         </form>
+        {% endif %}
 
         <!-- Resultado -->
         {% if resultado %}
-          <div id="resultado-bloco" class="mt-10 border-t pt-6">
-            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 shadow-inner">
-              <h2 class="text-2xl font-bold text-emerald-600 mb-2">✅ Resultado</h2>
-              <p class="text-gray-800 leading-relaxed">{{ resultado }}</p>
-            </div>
+        <div id="resultado-bloco" class="mt-10 border-t pt-6">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 shadow-inner">
+            <h2 class="text-2xl font-bold text-emerald-600 mb-2">Resultado</h2>
+            <p class="text-gray-800 leading-relaxed">{{ resultado }}</p>
           </div>
+
+          <div class="mt-6 text-center">
+            <button onclick="window.location.href = window.location.pathname" class="mt-4 bg-primary hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+              Escolher outro algoritmo
+            </button>
+          </div>
+        </div>
         {% endif %}
       </div>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="text-center text-sm text-gray-500 py-4">
-    Desenvolvido com ❤️ por você
-  </footer>
-
   <!-- Script -->
   <script>
     const algoritmoSelect = document.getElementById('id_algoritmo');
     const extraFields = document.getElementById('extra-fields');
+    const destinoDiv = document.getElementById('destino-div');
+    const destinoInput = document.getElementById('id_destino');
+    const origemInput = document.getElementById('id_origem');
 
-    algoritmoSelect.addEventListener('change', () => {
-      const origemInput = document.getElementById('id_origem');
-      const destinoInput = document.getElementById('id_destino');
+    const algoritmosSemDestino = ['a_estrela', 'sofrega'];
 
-      if (algoritmoSelect.value) {
+    function atualizarCampos() {
+      const algoritmo = algoritmoSelect.value;
+
+      if (algoritmo) {
         extraFields.classList.remove('hidden');
-        // Limpa os campos ao trocar de algoritmo
+
+        if (algoritmosSemDestino.includes(algoritmo)) {
+          destinoDiv.classList.add('hidden');
+          if (destinoInput) destinoInput.value = '';
+        } else {
+          destinoDiv.classList.remove('hidden');
+        }
+
         if (origemInput) origemInput.value = '';
-        if (destinoInput) destinoInput.value = '';
       } else {
         extraFields.classList.add('hidden');
       }
-    });
+    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const resultadoDiv = document.getElementById('resultado-bloco');
-      if (resultadoDiv && performance.getEntriesByType("navigation")[0].type === "reload") {
-        resultadoDiv.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
+    if (algoritmoSelect) {
+      algoritmoSelect.addEventListener('change', atualizarCampos);
+      window.addEventListener('DOMContentLoaded', () => {
+        atualizarCampos();
+        const resultadoDiv = document.getElementById('resultado-bloco');
+        if (resultadoDiv && performance.getEntriesByType("navigation")[0].type === "reload") {
+          resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
   </script>
 </body>
 </html>

@@ -28,7 +28,7 @@ def ler_heuristica_faro(nome_ficheiro):
     heuristica = {}
     with open(nome_ficheiro, newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
-        next(reader)  # Ignora cabeçalho
+        next(reader)
         for linha in reader:
             if len(linha) < 2:
                 continue

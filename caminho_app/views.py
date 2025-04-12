@@ -11,8 +11,8 @@ def processar_algoritmo(request):
     if request.method == 'POST':
         form = AlgoritmoForm(request.POST)
         if form.is_valid():
-            request.session['algoritmo_form_data'] = form.cleaned_data  # salva na sessão
-            return redirect(reverse('processar_algoritmo'))  # redireciona para limpar o POST
+            request.session['algoritmo_form_data'] = form.cleaned_data
+            return redirect(reverse('processar_algoritmo'))
     else:
         form = AlgoritmoForm()
 
@@ -22,10 +22,16 @@ def processar_algoritmo(request):
     if form_data:
         algoritmo = form_data['algoritmo']
         origem = form_data['origem'].strip().lower()
-        destino = form_data['destino'].strip().lower()
+
+        # Define destino automático para A* e Sôfrega
+        if algoritmo in ['a_estrela', 'sofrega']:
+            destino = 'faro'
+        else:
+            destino = form_data['destino'].strip().lower()
+
         grafo = ler_distancias_csv('distancesCities.csv')
 
-        if origem not in grafo or (algoritmo != 'a_estrela' and destino not in grafo):
+        if origem not in grafo or destino not in grafo:
             resultado = "Cidade não encontrada no grafo."
         else:
             if algoritmo == 'aprofundamento':
@@ -44,7 +50,7 @@ def processar_algoritmo(request):
 
             elif algoritmo == 'a_estrela':
                 heuristica = ler_heuristica_faro('distancesFaro.csv')
-                caminho, custo = a_estrela(grafo, heuristica, origem, "faro")
+                caminho, custo = a_estrela(grafo, heuristica, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({custo:.1f} km)"
                 else:
@@ -52,7 +58,7 @@ def processar_algoritmo(request):
 
             elif algoritmo == 'sofrega':
                 heuristica = ler_heuristica_faro('distancesFaro.csv')
-                caminho = procura_sofrega(grafo, heuristica, origem, "faro")
+                caminho = procura_sofrega(grafo, heuristica, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({len(caminho) - 1} passos)"
                 else:
