@@ -5,6 +5,8 @@
   <title>Algoritmo de Caminhos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -70,41 +72,11 @@
           <div id="extra-fields" class="space-y-4 hidden animate-fadeIn">
             <div>
               <label for="id_origem">Ponto de Início</label>
-              <select id="id_origem" name="origem" required>
-                <option value="" disabled selected hidden>Selecione</option>
-                <option value="Aveiro">Aveiro</option>
-                <option value="Braga">Braga</option>
-                <option value="Bragança">Bragança</option>
-                <option value="Beja">Beja</option>
-                <option value="Castelo Branco">Castelo Branco</option>
-                <option value="Coimbra">Coimbra</option>
-                <option value="Évora">Évora</option>
-                <option value="Faro">Faro</option>
-                <option value="Guarda">Guarda</option>
-                <option value="Leiria">Leiria</option>
-                <option value="Lisboa">Lisboa</option>
-                <option value="Porto">Porto</option>
-                <option value="Vila Real">Vila Real</option>
-              </select>
+              {{ form.origem }}
             </div>
             <div id="destino-div">
               <label for="id_destino">Ponto de Destino</label>
-              <select id="id_destino" name="destino">
-                <option value="" disabled selected hidden>Selecione</option>
-                <option value="Aveiro">Aveiro</option>
-                <option value="Braga">Braga</option>
-                <option value="Bragança">Bragança</option>
-                <option value="Beja">Beja</option>
-                <option value="Castelo Branco">Castelo Branco</option>
-                <option value="Coimbra">Coimbra</option>
-                <option value="Évora">Évora</option>
-                <option value="Faro">Faro</option>
-                <option value="Guarda">Guarda</option>
-                <option value="Leiria">Leiria</option>
-                <option value="Lisboa">Lisboa</option>
-                <option value="Porto">Porto</option>
-                <option value="Vila Real">Vila Real</option>
-              </select>
+              {{ form.destino }}
             </div>
           </div>
 
@@ -124,6 +96,9 @@
             <p class="text-gray-800 leading-relaxed">{{ resultado }}</p>
           </div>
 
+          <!-- Mapa com o caminho -->
+          <div id="map" class="mt-8 rounded-2xl shadow-lg" style="height: 400px;"></div>
+
           <div class="mt-6 text-center">
             <button onclick="window.location.href = window.location.pathname" class="mt-4 bg-primary hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
               Escolher outro algoritmo
@@ -137,43 +112,51 @@
 
   <!-- Script -->
   <script>
-    const algoritmoSelect = document.getElementById('id_algoritmo');
-    const extraFields = document.getElementById('extra-fields');
-    const destinoDiv = document.getElementById('destino-div');
-    const destinoInput = document.getElementById('id_destino');
-    const origemInput = document.getElementById('id_origem');
+    window.addEventListener('DOMContentLoaded', () => {
+      const algoritmoSelect = document.getElementById('id_algoritmo');
+      const extraFields = document.getElementById('extra-fields');
+      const destinoDiv = document.getElementById('destino-div');
+      const algoritmosSemDestino = ['a_estrela', 'sofrega'];
 
-    const algoritmosSemDestino = ['a_estrela', 'sofrega'];
-
-    function atualizarCampos() {
-      const algoritmo = algoritmoSelect.value;
-
-      if (algoritmo) {
-        extraFields.classList.remove('hidden');
-
-        if (algoritmosSemDestino.includes(algoritmo)) {
-          destinoDiv.classList.add('hidden');
-          if (destinoInput) destinoInput.value = '';
+      function atualizarCampos() {
+        const algoritmo = algoritmoSelect.value;
+        if (algoritmo) {
+          extraFields.classList.remove('hidden');
+          destinoDiv.classList.toggle('hidden', algoritmosSemDestino.includes(algoritmo));
         } else {
-          destinoDiv.classList.remove('hidden');
+          extraFields.classList.add('hidden');
         }
-
-        if (origemInput) origemInput.value = '';
-      } else {
-        extraFields.classList.add('hidden');
       }
-    }
 
-    if (algoritmoSelect) {
-      algoritmoSelect.addEventListener('change', atualizarCampos);
-      window.addEventListener('DOMContentLoaded', () => {
+      if (algoritmoSelect) {
+        algoritmoSelect.addEventListener('change', atualizarCampos);
         atualizarCampos();
-        const resultadoDiv = document.getElementById('resultado-bloco');
-        if (resultadoDiv && performance.getEntriesByType("navigation")[0].type === "reload") {
-          resultadoDiv.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    }
+      }
+
+      const resultadoDiv = document.getElementById('resultado-bloco');
+      if (resultadoDiv && performance.getEntriesByType("navigation")[0].type === "reload") {
+        resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      const coordenadas = {{ coordenadas_caminho|default:"[]"|safe }};
+      const nomes = {{ marcadores_nomes|default:"[]"|safe }};
+
+      if (Array.isArray(coordenadas) && coordenadas.length > 0) {
+        const map = L.map('map').setView(coordenadas[0], 7);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const polyline = L.polyline(coordenadas, { color: 'blue' }).addTo(map);
+        map.fitBounds(polyline.getBounds());
+
+        coordenadas.forEach((ponto, idx) => {
+          L.marker(ponto).addTo(map).bindPopup(nomes[idx] || `Ponto ${idx + 1}`);
+        });
+      }
+    });
   </script>
 </body>
 </html>

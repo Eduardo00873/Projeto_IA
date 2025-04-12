@@ -24,9 +24,19 @@ CIDADES = [
 ]
 
 class AlgoritmoForm(forms.Form):
-    algoritmo = forms.ChoiceField(choices=ALGORITMOS, label="Escolha o algoritmo")
-    origem = forms.ChoiceField(choices=CIDADES, label="Cidade de origem")
-    destino = forms.ChoiceField(choices=CIDADES, label="Cidade de destino", required=False)
+    algoritmo = forms.ChoiceField(
+        choices=[('', 'Selecione...')] + ALGORITMOS,
+        label="Escolha o algoritmo"
+    )
+    origem = forms.ChoiceField(
+        choices=[('', 'Selecione...')] + CIDADES,
+        label="Cidade de origem"
+    )
+    destino = forms.ChoiceField(
+        choices=[('', 'Selecione...')] + CIDADES,
+        label="Cidade de destino",
+        required=False
+    )
 
     def clean(self):
         cleaned_data = super().clean()
