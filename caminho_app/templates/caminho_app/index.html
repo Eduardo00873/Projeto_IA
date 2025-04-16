@@ -93,8 +93,20 @@
         <div id="resultado-bloco" class="mt-10 border-t pt-6">
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 shadow-inner">
             <h2 class="text-2xl font-bold text-emerald-600 mb-2">Resultado</h2>
-            <p class="text-gray-800 leading-relaxed">{{ resultado }}</p>
+            <p class="text-gray-800 leading-relaxed">{{ resultado|safe }}</p>
           </div>
+
+          <!-- Interações Simplificadas -->
+          {% if interacoes %}
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-3">Interações</h3>
+            <ul class="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100 shadow text-sm max-h-64 overflow-y-auto">
+              {% for linha in interacoes %}
+                <li class="px-4 py-2 text-gray-800">{{ linha }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
 
           <!-- Mapa com o caminho -->
           <div id="map" class="mt-8 rounded-2xl shadow-lg" style="height: 400px;"></div>

@@ -28,29 +28,43 @@ def ler_distancias_csv(nome_ficheiro):
                     print(f"Erro ao processar distância entre {origem} e {cidades[j]}: '{linha[j]}'")
     return grafo
 
-def profundidade_limitada(grafo, atual, destino, limite, caminho, visitados):
+
+def profundidade_limitada(grafo, atual, destino, limite, caminho, visitados, interacoes):
+    interacoes.append(f"Visitando: {atual.upper()}, Caminho: {' -> '.join(caminho)}, Limite restante: {limite}")
+    
     if atual == destino:
+        interacoes.append(f"Destino {destino.upper()} encontrado!\n")
         return caminho
 
     if limite <= 0:
+        interacoes.append(f"Limite atingido ao chegar em {atual.upper()}.\n")
         return None
 
     visitados.add(atual)
     for vizinho, _ in grafo.get(atual, []):
         if vizinho not in visitados:
             resultado = profundidade_limitada(
-                grafo, vizinho, destino, limite - 1, caminho + [vizinho], visitados.copy()
+                grafo, vizinho, destino, limite - 1, caminho + [vizinho], visitados.copy(), interacoes
             )
             if resultado:
                 return resultado
     return None
 
+
 def busca_aprofundamento_progressivo(grafo, origem, destino, limite_max=50):
+    interacoes = []
+    interacoes.append("Início da Busca em Aprofundamento Progressivo:\n")
+
     for limite in range(1, limite_max + 1):
-        resultado = profundidade_limitada(grafo, origem, destino, limite, [origem], set())
+        interacoes.append(f"Profundidade atual: {limite}")
+        resultado = profundidade_limitada(grafo, origem, destino, limite, [origem], set(), interacoes)
         if resultado:
-            return resultado
-    return None
+            return resultado, interacoes
+        interacoes.append(f"Nenhum caminho encontrado com profundidade {limite}.\n")
+
+    interacoes.append("Caminho não encontrado após atingir o limite máximo.")
+    return None, interacoes
+
 
 def main():
     grafo = ler_distancias_csv('distancesCities.csv')
@@ -65,14 +79,19 @@ def main():
     limite_max = input("Profundidade máxima (pressiona Enter para usar 50): ").strip()
     limite_max = int(limite_max) if limite_max.isdigit() else 50
 
-    caminho = busca_aprofundamento_progressivo(grafo, origem, destino, limite_max)
+    caminho, interacoes = busca_aprofundamento_progressivo(grafo, origem, destino, limite_max)
 
+    print("\nINTERAÇÕES:")
+    print("-" * 40)
+    for linha in interacoes:
+        print(linha)
+
+    print("\nRESULTADO:")
     if caminho:
-        print(f"\nCaminho encontrado (Aprofundamento Agressivo):")
         print(" -> ".join(caminho))
         print(f"Número de passos: {len(caminho) - 1}")
     else:
-        print(f"\nNão foi possível encontrar um caminho entre '{origem}' e '{destino}' com profundidade até {limite_max}.")
+        print(f"Não foi possível encontrar um caminho entre '{origem}' e '{destino}' com profundidade até {limite_max}.")
 
 
 if __name__ == "__main__":

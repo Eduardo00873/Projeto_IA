@@ -28,7 +28,7 @@ def ler_heuristica_faro(nome_ficheiro):
     heuristica = {}
     with open(nome_ficheiro, newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
-        next(reader)
+        next(reader)  # Ignora cabeçalho
         for linha in reader:
             if len(linha) < 2:
                 continue
@@ -42,23 +42,41 @@ def ler_heuristica_faro(nome_ficheiro):
 def procura_sofrega(grafo, heuristica, origem, destino="faro"):
     fila = [(heuristica.get(origem, float('inf')), origem, [origem])]
     visitados = set()
+    interacoes = []
+    passo = 1
+
+    interacoes.append("Início da Procura Sôfrega:\n")
 
     while fila:
-        _, atual, caminho = heapq.heappop(fila)
+        interacoes.append(f"--- Passo {passo} ---")
+        interacoes.append("Fila de prioridade: " + str([
+            (round(prio, 1), n, ' -> '.join(p)) for prio, n, p in fila
+        ]))
+
+        prioridade, atual, caminho = heapq.heappop(fila)
+        interacoes.append(f"A explorar: {atual.upper()} (h: {prioridade})")
 
         if atual == destino:
-            return caminho
+            interacoes.append("Destino alcançado!\n")
+            return caminho, interacoes
 
         if atual in visitados:
+            interacoes.append(f"{atual.upper()} já foi visitado.\n")
+            passo += 1
             continue
         visitados.add(atual)
 
         for vizinho, _ in grafo.get(atual, []):
             if vizinho not in visitados:
-                prioridade = heuristica.get(vizinho, float('inf'))
-                heapq.heappush(fila, (prioridade, vizinho, caminho + [vizinho]))
+                h = heuristica.get(vizinho, float('inf'))
+                interacoes.append(f"  Adicionando vizinho: {vizinho.upper()} (h: {h})")
+                heapq.heappush(fila, (h, vizinho, caminho + [vizinho]))
 
-    return None
+        interacoes.append("")
+        passo += 1
+
+    interacoes.append("Caminho não encontrado.")
+    return None, interacoes
 
 def main():
     grafo = ler_distancias_csv('distancesCities.csv')
@@ -71,10 +89,15 @@ def main():
         print("Cidade de origem não encontrada.")
         return
 
-    caminho = procura_sofrega(grafo, heuristica, origem, destino)
+    caminho, interacoes = procura_sofrega(grafo, heuristica, origem, destino)
 
+    print("\nINTERAÇÕES:")
+    print("-" * 40)
+    for linha in interacoes:
+        print(linha)
+
+    print("\nRESULTADO:")
     if caminho:
-        print(f"\nCaminho encontrado (Procura Sôfrega):")
         print(" -> ".join(caminho))
         print(f"Número de passos: {len(caminho) - 1}")
     else:

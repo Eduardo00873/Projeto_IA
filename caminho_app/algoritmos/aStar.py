@@ -42,14 +42,27 @@ def ler_heuristica_faro(nome_ficheiro):
 def a_estrela(grafo, heuristica, origem, destino="faro"):
     fila = [(heuristica.get(origem, float('inf')), 0, origem, [origem])]
     visitados = set()
+    interacoes = []
+    passo = 1
+
+    interacoes.append("Início da busca A*:\n")
 
     while fila:
+        interacoes.append(f"--- Passo {passo} ---")
+        interacoes.append("Fila de prioridade: " + str([
+            (round(f, 1), n, ' -> '.join(p)) for f, g, n, p in fila
+        ]))
+
         f, g, atual, caminho = heapq.heappop(fila)
+        interacoes.append(f"A explorar: {atual.upper()}, Custo acumulado: {g}, Heurística: {heuristica.get(atual, '?')}")
 
         if atual == destino:
-            return caminho, g
+            interacoes.append("Destino alcançado!\n")
+            return caminho, g, interacoes
 
         if atual in visitados:
+            interacoes.append(f"{atual.upper()} já foi visitado.\n")
+            passo += 1
             continue
         visitados.add(atual)
 
@@ -58,9 +71,14 @@ def a_estrela(grafo, heuristica, origem, destino="faro"):
                 g_novo = g + custo
                 h = heuristica.get(vizinho, float('inf'))
                 f_novo = g_novo + h
+                interacoes.append(f"  Adicionando vizinho: {vizinho.upper()} (g: {g_novo}, h: {h}, f: {f_novo})")
                 heapq.heappush(fila, (f_novo, g_novo, vizinho, caminho + [vizinho]))
 
-    return None, float('inf')
+        interacoes.append("")
+        passo += 1
+
+    interacoes.append("Caminho não encontrado.")
+    return None, float('inf'), interacoes
 
 def main():
     grafo = ler_distancias_csv('distancesCities.csv')
@@ -73,10 +91,15 @@ def main():
         print("Cidade de origem não encontrada.")
         return
 
-    caminho, custo = a_estrela(grafo, heuristica, origem, destino)
+    caminho, custo, interacoes = a_estrela(grafo, heuristica, origem, destino)
 
+    print("\nINTERAÇÕES:")
+    print("-" * 40)
+    for linha in interacoes:
+        print(linha)
+
+    print("\nRESULTADO:")
     if caminho:
-        print(f"\nCaminho encontrado (A*):")
         print(" -> ".join(caminho))
         print(f"Km totais: {custo} km")
         print(f"Número de passos: {len(caminho) - 1}")

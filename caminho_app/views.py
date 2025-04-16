@@ -35,6 +35,7 @@ def processar_algoritmo(request):
     resultado = None
     coordenadas_caminho = []
     marcadores_nomes = []
+    interacoes = []
     form_data = request.session.pop('algoritmo_form_data', None)
 
     if form_data:
@@ -55,14 +56,14 @@ def processar_algoritmo(request):
             caminho = None
 
             if algoritmo == 'aprofundamento':
-                caminho = busca_aprofundamento_progressivo(grafo, origem, destino)
+                caminho, interacoes = busca_aprofundamento_progressivo(grafo, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({len(caminho) - 1} passos)"
                 else:
                     resultado = "Caminho não encontrado com Aprofundamento Agressivo."
 
             elif algoritmo == 'custo_uniforme':
-                caminho, custo = custo_uniforme(grafo, origem, destino)
+                caminho, custo, interacoes = custo_uniforme(grafo, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({custo:.1f} km)"
                 else:
@@ -70,7 +71,7 @@ def processar_algoritmo(request):
 
             elif algoritmo == 'a_estrela':
                 heuristica = ler_heuristica_faro('distancesFaro.csv')
-                caminho, custo = a_estrela(grafo, heuristica, origem, destino)
+                caminho, custo, interacoes = a_estrela(grafo, heuristica, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({custo:.1f} km)"
                 else:
@@ -78,13 +79,13 @@ def processar_algoritmo(request):
 
             elif algoritmo == 'sofrega':
                 heuristica = ler_heuristica_faro('distancesFaro.csv')
-                caminho = procura_sofrega(grafo, heuristica, origem, destino)
+                caminho, interacoes = procura_sofrega(grafo, heuristica, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({len(caminho) - 1} passos)"
                 else:
                     resultado = "Caminho não encontrado com Procura Sôfrega."
 
-            # Obter coordenadas e nomes
+            # Coordenadas para o mapa
             if caminho:
                 for cidade in caminho:
                     nome = cidade.title()
@@ -98,4 +99,5 @@ def processar_algoritmo(request):
         'resultado': resultado,
         'coordenadas_caminho': coordenadas_caminho,
         'marcadores_nomes': marcadores_nomes,
+        'interacoes': [str(linha) for linha in interacoes]  # Garantir strings
     })

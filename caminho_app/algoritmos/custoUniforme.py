@@ -32,23 +32,43 @@ def ler_distancias_csv(nome_ficheiro):
 def custo_uniforme(grafo, origem, destino):
     fila = [(0, origem, [origem])]  # (custo_acumulado, cidade_atual, caminho)
     visitados = set()
+    passo = 1
+    interacoes = []
+
+    interacoes.append("Início da busca de custo uniforme:\n")
 
     while fila:
+        interacoes.append(f"--- Passo {passo} ---")
+        interacoes.append("Fila de prioridade: " + str([(c, n, ' -> '.join(p)) for c, n, p in fila]))
+
         custo, atual, caminho = heapq.heappop(fila)
+        interacoes.append(f"A explorar: {atual.upper()}, Custo acumulado: {custo}, Caminho até agora: {' -> '.join(caminho)}")
 
         if atual == destino:
-            return caminho, custo
+            interacoes.append("Destino alcançado!\n")
+            return caminho, custo, interacoes
         
         if atual in visitados:
+            interacoes.append(f"{atual.upper()} já foi visitado.\n")
+            passo += 1
             continue
         visitados.add(atual)
 
         for vizinho, distancia in grafo.get(atual, []):
             if vizinho not in visitados:
-                heapq.heappush(fila, (custo + distancia, vizinho, caminho + [vizinho]))
+                novo_custo = custo + distancia
+                novo_caminho = caminho + [vizinho]
+                interacoes.append(f"  Adicionando vizinho: {vizinho.upper()} (Distância: {distancia}, Novo custo: {novo_custo})")
+                heapq.heappush(fila, (novo_custo, vizinho, novo_caminho))
 
-    return None, float('inf')
+        interacoes.append("")  # linha em branco
+        passo += 1
 
+    interacoes.append("Caminho não encontrado.")
+    return None, float('inf'), interacoes
+
+
+# Esta função `main()` é útil para testes locais com terminal
 def main():
     grafo = ler_distancias_csv('distancesCities.csv')
     
@@ -56,16 +76,20 @@ def main():
     destino = input("Cidade de destino: ").strip().lower()
 
     if origem not in grafo or destino not in grafo:
-        print("Cidade não encontrada.")
+        print("Cidade não encontrada no ficheiro.")
         return
 
-    caminho, custo = custo_uniforme(grafo, origem, destino)
+    caminho, custo, interacoes = custo_uniforme(grafo, origem, destino)
     
+    for linha in interacoes:
+        print(linha)
+
     if caminho:
-        print(f"Caminho encontrado: {' -> '.join(caminho)}")
-        print(f"Km totais: {custo} km")
+        print(f"\nCaminho encontrado: {' -> '.join(caminho)}")
+        print(f"Km totais: {custo:.1f} km")
     else:
         print("Não foi possível encontrar um caminho.")
+
 
 if __name__ == "__main__":
     main()
