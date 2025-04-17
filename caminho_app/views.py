@@ -38,7 +38,7 @@ def processar_algoritmo(request):
     marcadores_nomes = []
     interacoes = []
     form_data = request.session.pop('algoritmo_form_data', None)
-    matricula_detectada = request.session.pop('matricula_detectada', None)
+    matricula_detectada = request.session.get('matricula_detectada')
 
     if request.method == 'POST':
         form = AlgoritmoForm(request.POST)
@@ -72,6 +72,9 @@ def processar_algoritmo(request):
                 caminho, interacoes = busca_aprofundamento_progressivo(grafo, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({len(caminho) - 1} passos)"
+                    if matricula_detectada:
+                        guardar_dados_em_txt(matricula_detectada, origem, destino)
+                        request.session.pop('matricula_detectada', None)
                 else:
                     resultado = "Caminho não encontrado com Aprofundamento Agressivo."
 
@@ -79,6 +82,9 @@ def processar_algoritmo(request):
                 caminho, custo, interacoes = custo_uniforme(grafo, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({custo:.1f} km)"
+                    if matricula_detectada:
+                        guardar_dados_em_txt(matricula_detectada, origem, destino)
+                        request.session.pop('matricula_detectada', None)
                 else:
                     resultado = "Caminho não encontrado com Custo Uniforme."
 
@@ -87,6 +93,9 @@ def processar_algoritmo(request):
                 caminho, custo, interacoes = a_estrela(grafo, heuristica, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({custo:.1f} km)"
+                    if matricula_detectada:
+                        guardar_dados_em_txt(matricula_detectada, origem, destino)
+                        request.session.pop('matricula_detectada', None)
                 else:
                     resultado = "Caminho não encontrado com A*."
 
@@ -95,6 +104,9 @@ def processar_algoritmo(request):
                 caminho, interacoes = procura_sofrega(grafo, heuristica, origem, destino)
                 if caminho:
                     resultado = f"Caminho: {' -> '.join(caminho)} ({len(caminho) - 1} passos)"
+                    if matricula_detectada:
+                        guardar_dados_em_txt(matricula_detectada, origem, destino)
+                        request.session.pop('matricula_detectada', None)
                 else:
                     resultado = "Caminho não encontrado com Procura Sôfrega."
 
@@ -132,3 +144,11 @@ def detectar_matricula_view(request):
                 return redirect('processar_algoritmo')
     else:
         form = EscolherImagemForm()
+
+
+def guardar_dados_em_txt(matricula, origem, destino):
+    root_path = settings.BASE_DIR
+    file_path = os.path.join(root_path, 'dados_matricula.txt')
+
+    with open(file_path, 'a', encoding='utf-8') as f:
+        f.write(f"Matrícula: {matricula}, Origem: {origem}, Destino: {destino}\n")

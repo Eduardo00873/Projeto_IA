@@ -1,0 +1,5 @@
+
+Matrícula: 63-81-rm, Origem: aveiro, Destino: vila real
+Matrícula: 70-87-t0, Origem: braga, Destino: lisboa
+Matrícula: aa-00-aa, Origem: vila real, Destino: faro
+Matrícula: aa-00-aa, Origem: évora, Destino: faro
