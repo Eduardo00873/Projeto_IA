@@ -1,4 +1,5 @@
 from django import forms
+import os
 
 ALGORITMOS = [
     ('aprofundamento', 'Aprofundamento Progressivo'),
@@ -45,3 +46,20 @@ class AlgoritmoForm(forms.Form):
 
         if algoritmo not in ['a_estrela', 'sofrega'] and not destino:
             raise forms.ValidationError("A cidade de destino é obrigatória para este algoritmo.")
+
+
+class EscolherImagemForm(forms.Form):
+    def get_opcoes_imagens():
+        pasta = 'caminho_app/static/imagens'
+        opcoes = []
+        for nome_arquivo in os.listdir(pasta):
+            if nome_arquivo.lower().endswith(('.jpg', '.jpeg', '.png')):
+                caminho = os.path.join(pasta, nome_arquivo)
+                opcoes.append((caminho, nome_arquivo))
+        return opcoes
+
+    imagem = forms.ChoiceField(
+        choices=get_opcoes_imagens(),
+        label="Escolha uma imagem",
+        widget=forms.Select(attrs={'class': 'w-full border px-3 py-2 rounded'})
+    )

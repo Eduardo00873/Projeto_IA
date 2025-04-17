@@ -6,6 +6,15 @@ from caminho_app.algoritmos.aStar import a_estrela
 from caminho_app.algoritmos.custoUniforme import custo_uniforme
 from caminho_app.algoritmos.procuraSofrega import procura_sofrega
 from caminho_app.algoritmos.ler_distancias_csv import ler_distancias_csv, ler_heuristica_faro
+from django.shortcuts import render
+from .forms import EscolherImagemForm
+from caminho_app.detector import Matricula_detector, Ocr
+from django.conf import settings
+import os
+import cv2
+import pytesseract
+import re
+from ultralytics import YOLO
 
 COORDENADAS = {
     'aveiro': (40.6405, -8.6538),
@@ -24,19 +33,23 @@ COORDENADAS = {
 }
 
 def processar_algoritmo(request):
+    resultado = None
+    coordenadas_caminho = []
+    marcadores_nomes = []
+    interacoes = []
+    form_data = request.session.pop('algoritmo_form_data', None)
+    matricula_detectada = request.session.pop('matricula_detectada', None)
+
     if request.method == 'POST':
         form = AlgoritmoForm(request.POST)
         if form.is_valid():
             request.session['algoritmo_form_data'] = form.cleaned_data
             return redirect(reverse('processar_algoritmo'))
     else:
-        form = AlgoritmoForm()
-
-    resultado = None
-    coordenadas_caminho = []
-    marcadores_nomes = []
-    interacoes = []
-    form_data = request.session.pop('algoritmo_form_data', None)
+        if matricula_detectada:
+            form = AlgoritmoForm(initial={'origem': matricula_detectada})
+        else:
+            form = AlgoritmoForm()
 
     if form_data:
         algoritmo = form_data['algoritmo']
@@ -99,5 +112,23 @@ def processar_algoritmo(request):
         'resultado': resultado,
         'coordenadas_caminho': coordenadas_caminho,
         'marcadores_nomes': marcadores_nomes,
-        'interacoes': [str(linha) for linha in interacoes]  # Garantir strings
+        'interacoes': [str(linha) for linha in interacoes],  # Garantir strings
+        'imagem_form': EscolherImagemForm(),
+        'resultado_matricula': matricula_detectada
     })
+
+def detectar_matricula_view(request):
+    resultado = None
+
+    if request.method == "POST":
+        form = EscolherImagemForm(request.POST, request.FILES)
+        if form.is_valid():
+            caminho = form.cleaned_data['imagem']
+            detector = Matricula_detector("caminho_app/license_plate_detector.pt", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+            resultado = detector.detetar_matricula(caminho)
+
+            if resultado:
+                request.session['matricula_detectada'] = resultado.lower()
+                return redirect('processar_algoritmo')
+    else:
+        form = EscolherImagemForm()
